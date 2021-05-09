@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        li {
+            list-style: none;
+            margin-top: 5px;
+        }
+
+        body {
+            background-color: rgb(119, 116, 116);
+        }
+
+        .head {
+            width: 100%;
+            height: 50px;
+            background-color: rgb(54, 53, 53);
+            text-align: center;
+            color: aqua;
+        }
+
+        .head .input {
+            width: 200px;
+            height: 30px;
+            margin-top: 10px;
+            outline: none;
+            border-radius: 15px;
+        }
+
+        .content {
+            width: 50%;
+            height: 800px;
+
+            margin: auto;
+            overflow: hidden;
+        }
+
+        h3 {
+            margin: 15px;
+
+        }
+
+        ul {
+            margin: 15px;
+        }
+
+        .content ul li {
+            width: 100%;
+            height: 30px;
+            background-color: azure;
+            line-height: 30px;
+            padding: 5px;
+            box-sizing: border-box
+        }
+
+        .content ul li div {
+            float: right;
+            width: 25px;
+            height: 25px;
+            background: url("yan.jpg");
+            background-size: contain;
+        }
+
+        .content div {
+            width: 100%;
+            height: 35px;
+
+            display: flex;
+            justify-content: space-between;
+            text-align: center;
+            align-items: center;
+
+        }
+
+        .content div .shuzi {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: aqua;
+            text-align: center;
+            box-sizing: border-box;
+            padding-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="head">
+        <span>ToDOList</span> <input type="text" class="input" placeholder="请输入内容">
+    </div>
+    <div class="content">
+        <div>
+            <div class="shu">
+                <h3>正在进行</h3>
+            </div>
+            <div class="shuzi shuzii"></div>
+        </div>
+
+        <ul class="ul">
+
+        </ul>
+        <div>
+            <div class="shu">
+                <h3>已经完成</h3>
+            </div>
+            <div class="shuzi"></div>
+        </div>
+        <ul class="ol">
+
+        </ul>
+
+
+    </div>
+    <script src="jq.js"></script>
+    <script>
+        $(function () {
+
+            load()
+            $(".input").on('keydown', function (e) {
+                if (e.keyCode == 13) {
+                    if ($(this).val() == "") {
+                        alert("请输入内容")
+                    } else {
+                        var local = getDate()
+                        //把local数组进行更新，把最新的数据追加到 local里面，然后再保存到本地存储里面
+                        local.push({ title: $(this).val(), done: false })
+                        //把数组存储到本地存储
+                        saveDate(local)
+                        //本地存储数据渲染到页面中
+                        // $(".ul").empty()//便利之前先要清空
+                        load()
+                        $(this).val("")
+                    }
+                }
+            })
+
+
+
+
+
+
+            //读取本地存储数据
+            function getDate() {
+                var data = localStorage.getItem("todolist");
+                if (data !== null) {
+                    //本地存储数据时字符串，所以转换对象格式
+                    return JSON.parse(data)
+                } else {
+                    return [];
+                }
+            }
+
+
+            //保存本地存储数据
+            function saveDate(data) {
+                localStorage.setItem("todolist", JSON.stringify(data))
+            }
+
+            //渲染加载
+            //先要读取本地存储数据，便利数据
+            function load() {
+                $(".ul").empty()
+                $(".ol").empty()
+                var counterr = 0;//正在进行
+                var docounter = 0;
+                //读取数据
+                var data = getDate();
+                //便利数据
+                $.each(data, function (i, n) {
+                    if (n.done) {
+                        $(".ol").prepend("<li> <input type='checkbox'checked = 'checked' ><span>" + n.title + "</span> <div id = " + i + "></div></li>")
+                        docounter++;
+                    } else {
+                        $(".ul").prepend("<li> <input type='checkbox'><span>" + n.title + "</span> <div id = " + i + "></div></li>")
+                        counterr++;
+                    }
+
+                })
+                $(".shuzi").text(docounter);
+                $(".shuzii").text(counterr);
+
+            }
+
+
+
+            //修改数据
+            //先获取本地数据，删除对应数据，保存给本地数据，重新渲染
+
+            $(".ul,.ol").on('click', "div", function () {
+                //先获取本地存储
+                var data = getDate();
+                //修改数据，给每个div添加自定义属性，记录当前索引号
+                var index = $(this).attr("id");
+                data.splice(index, 1);
+
+                //保存本地存储
+                saveDate(data);
+
+                //渲染
+          
+                load();
+
+
+
+            })
+
+            //正在进行和已经进行修改done
+            $(".ul,.ol").on('click', "input", function () {
+
+                //获取本地数据
+                var data = getDate();
+                var index = $(this).siblings("div").attr("id");
+               
+                data[index].done = $(this).prop("checked");
+            
+                //修改数据
+
+
+                //保存数据
+                saveDate(data);
+                //渲染
+                load();
+            })
+
+
+        })
+
+
+
+    </script>
+</body>
+
+</html>
